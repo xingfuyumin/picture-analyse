@@ -3,5 +3,5 @@ export type Config = {
   img: string;
   // 分析程序执行命令
   cmd: string;
-  cmd2: '',
+  cmd2: string,
 }

@@ -1,0 +1,24 @@
+.dir-select {
+  display: flex;
+  flex-direction: column;
+  .header {
+    text-align: right;
+    button {
+      margin-left: 10px;
+    }
+  }
+  .content {
+    height: 0;
+    flex: 1 1;
+    overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 24px 0;
+    align-items: center;
+    img {
+      max-width: 150px;
+      max-height: 150px;
+      margin: 10px;
+    }
+  }
+}
