@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, Menu, protocol } = require('electron');
+const { app, BrowserWindow, Menu, protocol, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -15,6 +15,9 @@ function createWindow() {
     }
   });
   win.loadFile('build/index.html');
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('path', app.isPackaged ? app.getPath('exe') : app.getAppPath())
+  })
   win.webContents.openDevTools();
 }
 
@@ -32,4 +35,4 @@ app.whenReady().then(() => {
   }, (error) => {
     if (error) console.error('Failed to register protocol');
   })
-})
+});

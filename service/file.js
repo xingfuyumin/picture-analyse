@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-exports.readFile = (name) => new Promise((resolve, reject) => {
-  fs.readFile(`./${name}`, 'utf-8', (err, data) => {
+exports.readFile = (rootDir, name) => new Promise((resolve, reject) => {
+  fs.readFile(`${rootDir}/${name}`, 'utf-8', (err, data) => {
     if (err) {
       reject('文件读取失败');
     }
@@ -10,8 +10,8 @@ exports.readFile = (name) => new Promise((resolve, reject) => {
   })
 });
 
-exports.readDir = (name) => new Promise((resolve, reject) => {
-  fs.readdir(`./${name}/`, {}, (err, data) => {
+exports.readDir = (rootDir, name) => new Promise((resolve, reject) => {
+  fs.readdir(`${rootDir}/${name}/`, {}, (err, data) => {
     if (err) {
       reject('目录读取失败');
     }
@@ -19,6 +19,6 @@ exports.readDir = (name) => new Promise((resolve, reject) => {
   })
 });
 
-exports.getRootDir = () => new Promise((resolve) => {
-  resolve(path.resolve('./'));
+exports.getRootDir = (rootDir) => new Promise((resolve) => {
+  resolve(rootDir);
 });
