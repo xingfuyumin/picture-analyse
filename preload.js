@@ -12,6 +12,9 @@ window.request = async (type, ...params) => {
   };
 };
 ipcRenderer.on('path', (event, message) => {
-  const str = message;
+  let str = message;
+  if (str.split('\\').find(v => v.includes('.exe'))) {
+    str = str.split('\\').filter(v => !v.includes('.exe')).join('\\');
+  }
   window.rootDir = str;
 })

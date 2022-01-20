@@ -18,7 +18,7 @@ function createWindow() {
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('path', app.isPackaged ? app.getPath('exe') : app.getAppPath())
   })
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
