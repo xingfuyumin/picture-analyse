@@ -1,23 +1,39 @@
 import { Button, message, Upload } from 'antd';
-import React, { FC, useEffect, useState, useRef } from 'react';
+import React, { FC, useState, useRef } from 'react';
 import './upload.less';
 import { Config } from '../type';
+import { ArrowRightOutlined, UploadOutlined } from '@ant-design/icons';
 
 type Props = {
   config: Config;
-  countData: (dir: string) => void;
+  next: () => void;
+  setLoading: (loading: boolean) => void;
 };
 const request = (window as any).request;
-
 const DirSelect: FC<Props> = ({
   config,
-  countData,
+  next, setLoading,
 }) => {
   const [files, setFiles] = useState([] as string[]);
   const ref = useRef([] as string[]);
+  const countData = (dir: string) => {
+    if (config.cmd) {
+      setLoading(true);
+      request('command/shell', `${config.cmd} ${dir}/`).then(() => {
+        next();
+        setLoading(false);
+      }).catch((err: string) => {
+        message.error(err);
+        setLoading(false);
+      });
+    } else {
+      next();
+    }
+  }
   return (
     <div className="dir-select">
-      <div className="header">
+      {
+        files.length === 0 &&
         <Upload
           accept={config.img}
           showUploadList={false}
@@ -32,17 +48,42 @@ const DirSelect: FC<Props> = ({
             return false;
           }}
         >
-          <Button
-            type={files.length === 0 ? 'primary' : 'default'}
-            onClick={() => {
-              ref.current = [];
+          <Button type='primary' className="centerButton"><UploadOutlined />上传文件夹</Button>
+        </Upload>
+      }
+      {
+        files.length > 0 &&
+        <div className="content">
+          {
+            files.map((file) => <img src={`file:///${file}`} alt="" key={file} />)
+          }
+        </div>
+      }
+      {
+        files.length > 0 &&
+        <div className="footer">
+          <Upload
+            accept={config.img}
+            showUploadList={false}
+            directory
+            multiple
+            beforeUpload={(f: any) => {
+              const path: string = f.path;
+              if (path) {
+                ref.current.push(path);
+                setFiles([...ref.current]);
+              }
+              return false;
             }}
           >
-            {files.length === 0 ? '上传文件夹' : '重新上传'}
-          </Button>
-        </Upload>
-        {
-          files.length > 0 &&
+            <Button
+              onClick={() => {
+                ref.current = [];
+              }}
+            >
+              <UploadOutlined />重新上传
+            </Button>
+          </Upload>
           <Button
             type="primary"
             onClick={() => {
@@ -50,15 +91,10 @@ const DirSelect: FC<Props> = ({
               countData(dir);
             }}
           >
-            开始计算
+            下一步<ArrowRightOutlined />
           </Button>
-        }
-      </div>
-      <div className="content">
-        {
-          files.map((file) => <img src={`file:///${file}`} alt="" key={file}/>)
-        }
-      </div>
+        </div>
+      }
     </div >
   );
 };

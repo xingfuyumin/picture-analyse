@@ -1,15 +1,18 @@
-.nofile {
-  width: 400px;
-  height: 300px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  .anticon {
-    font-size: 60px;
-  }
-}
-
 .container {
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .con-header {
+    margin-bottom: 10px;
+    padding: 12px 12px 0 12px;
+  }
+  .con-content {
+    flex: 1 1;
+    height: 0;
+    padding: 0 0 12px 0;
+  }
+}
+.ant-steps-icon {
+  top: 7px !important;
 }

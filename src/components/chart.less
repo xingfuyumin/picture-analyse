@@ -1,29 +1,15 @@
+@import './upload.less';
+
 .chart-container {
-  margin-bottom: 80px;
-  .chart-header {
-    padding: 4px 0;
-    display: flex;
-    align-items: center;
-    .chart-title {
-      flex: 1 1;
-      font-size: 18px;
-      font-weight: 600;
+  .header {
+    .ant-select {
+      margin-left: 10px;
     }
-    .chart-oper {
-      .ant-select {
-        width: 240px;
-      }
-      & > span {
-        margin-left: 10px;
-      }
-    }
-  }
-  .chart-content {
-    .chart-top {
-      margin-bottom: 10px;
-    }
-    .chart-bottom {
-      height: 500px;
+    .sub-header {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translate(0, -50%);
     }
   }
 }

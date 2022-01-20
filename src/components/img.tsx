@@ -1,49 +1,27 @@
-import { message, Spin } from 'antd';
+import { Button, message, Upload } from 'antd';
 import React, { FC, useEffect, useState } from 'react';
+import { Config } from '../type';
 import './img.less';
+import { ArrowLeftOutlined, UploadOutlined, ArrowRightOutlined } from '@ant-design/icons';
 
 const request = (window as any).request;
 type Props = {
+  config: Config;
   setLoading: (loading: boolean) => void;
-};
-type Img = {
-  origin: string;
-  lbp: string;
-  gobar: string;
-  sift: string;
+  next: () => void;
+  last: () => void;
 };
 
 const ImgBlock: FC<Props> = ({
-  setLoading,
+  config,
+  setLoading, next, last,
 }) => {
-  const [list, setList] = useState([] as Img[]);
+  const [file, setFile] = useState(null as string | null);
+  const [rootDir, setRootDir] = useState(null as string | null);
   useEffect(() => {
     setLoading(true);
-    Promise.all([request('file/readDir', `tmp/img/origin`), request('file/readDir', `tmp/img/gobar`),
-    request('file/readDir', `tmp/img/sift`), request('file/readDir', `tmp/img/lbp`),
-    request('file/getRootDir')]).then(([l1, l2, l3, l4, dir]) => {
-      const gobar: Record<string, string> = {};
-      const sift: Record<string, string> = {};
-      const lbp: Record<string, string> = {};
-      const l: Img[] = [];
-      l2.forEach((i: string) => {
-        gobar[i] = `${dir}/tmp/img/gobar/${i}`;
-      });
-      l3.forEach((i: string) => {
-        sift[i] = `${dir}/tmp/img/sift/${i}`;
-      });
-      l4.forEach((i: string) => {
-        lbp[i] = `${dir}/tmp/img/lbp/${i}`;
-      });
-      l1.forEach((i: string) => {
-        l.push({
-          origin: `${dir}/tmp/img/origin/${i}`,
-          gobar: gobar[i],
-          sift: sift[i],
-          lbp: lbp[i],
-        });
-        setList(l);
-      });
+    request('file/getRootDir').then((str: string) => {
+      setRootDir(str);
       setLoading(false);
     }).catch((err: string) => {
       message.error(err);
@@ -51,32 +29,100 @@ const ImgBlock: FC<Props> = ({
     });
   }, [1]);
   return (
-    <div className="img-container">
+    <div className="dir-select img-container">
       {
-        list.map((item) => (
-          <div className="img" key={item.origin}>
-            <div className="img-left">
-              <div className="img-right">
-                <img src={item.origin} alt="" />
-                <div>原始视图</div>
-              </div>
-            </div>
-            <div className="img-right">
-              <img src={item.lbp} alt="" />
-              <div>LBP特征</div>
-            </div>
-            <div className="img-right">
-              <img src={item.gobar} alt="" />
-              <div>gobar特征</div>
-            </div>
-            <div className="img-right">
-              <img src={item.sift} alt="" />
-              <div>sift特征</div>
+        !file &&
+        <Upload
+          accept={config.img}
+          showUploadList={false}
+          beforeUpload={(f: any) => {
+            const path: string = f.path;
+            if (path) {
+              if (config.cmd2) {
+                setLoading(true);
+                request('command/shell', `${config.cmd2} ${path}`).then(() => {
+                  setFile(path);
+                  setLoading(false);
+                }).catch((err: string) => {
+                  message.error(err);
+                  setLoading(false);
+                });
+              } else {
+                setFile(path);
+              }
+            }
+            return false;
+          }}
+        >
+          <Button type='primary' className="centerButton"><UploadOutlined />上传图片</Button>
+        </Upload>
+      }
+      {
+        file &&
+        <div className="content img">
+          <div className="img-left">
+            <div>
+              <img src={`${rootDir}/tmp/img.png`} alt="" />
+              <div>原始视图</div>
             </div>
           </div>
-        ))
+          <div className="img-right">
+            <img src={`${rootDir}/tmp/img-lbp.png`} alt="" />
+            <div>LBP特征</div>
+          </div>
+          <div className="img-right">
+            <img src={`${rootDir}/tmp/img-gobar.png`} alt="" />
+            <div>gobar特征</div>
+          </div>
+          <div className="img-right">
+            <img src={`${rootDir}/tmp/img-hog.png`} alt="" />
+            <div>hog特征</div>
+          </div>
+        </div>
       }
-    </div>
+      {
+        file &&
+        <div className="footer">
+          <Button
+            onClick={last}
+          >
+            <ArrowLeftOutlined />上一步
+          </Button>
+          <Upload
+            accept={config.img}
+            showUploadList={false}
+            beforeUpload={(f: any) => {
+              const path: string = f.path;
+              if (path) {
+                if (config.cmd2) {
+                  setLoading(true);
+                  request('command/shell', `${config.cmd2} ${path}`).then(() => {
+                    setFile(path);
+                    setLoading(false);
+                  }).catch((err: string) => {
+                    message.error(err);
+                    setLoading(false);
+                  });
+                } else {
+                  setFile(path);
+                }
+              }
+              return false;
+            }}
+          >
+            <Button>
+              <UploadOutlined />重新上传
+            </Button>
+          </Upload>
+          <Button
+            type="primary"
+            onClick={next}
+          >
+            下一步<ArrowRightOutlined />
+          </Button>
+        </div>
+      }
+    </div >
   );
 };
 

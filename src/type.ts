@@ -4,4 +4,5 @@ export type Config = {
   // 分析程序执行命令
   cmd: string;
   cmd2: string,
+  cmd3: string,
 }
