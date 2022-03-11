@@ -68,11 +68,11 @@ const ImgBlock: FC<Props> = ({
           </div>
           <div className="img-right">
             <img src={`${rootDir}/tmp/img-lbp.png`} alt="" />
-            <div>LBP特征</div>
+            <div>lbp特征</div>
           </div>
           <div className="img-right">
             <img src={`${rootDir}/tmp/img-gobar.png`} alt="" />
-            <div>gobar特征</div>
+            <div>gabor特征</div>
           </div>
           <div className="img-right">
             <img src={`${rootDir}/tmp/img-hog.png`} alt="" />

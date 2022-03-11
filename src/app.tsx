@@ -22,13 +22,15 @@ const App = () => {
   const [step, setStep] = useState(0);
   useEffect(() => {
     setLoading(true);
-    request('file/readFile', 'config.json').then((str: string) => {
-      setConfig({ ...defaultConfig, ...JSON.parse(str) })
-      setLoading(false);
-    }).catch((err: string) => {
-      setConfig(defaultConfig);
-      setLoading(false);
-    });
+    setTimeout(() => {
+      request('file/readFile', 'config.json').then((str: string) => {
+        setConfig({ ...defaultConfig, ...JSON.parse(str) })
+        setLoading(false);
+      }).catch((err: string) => {
+        setConfig(defaultConfig);
+        setLoading(false);
+      });
+    }, 1000);
   }, [1]);
   const stepContent = [
     <DirSelect

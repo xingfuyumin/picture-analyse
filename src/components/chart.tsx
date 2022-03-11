@@ -27,25 +27,34 @@ const DataChart: FC<Props> = ({
   const chartRef = useRef(null as any);
   const refreshData = () => {
     setLoading(true);
-    Promise.all([request('file/readFile', 'tmp/chart-info.json'),
-    request('file/readFile', 'tmp/chart-data.txt')]).then(([t1, t2]) => {
-      setInfo(JSON.parse(t1));
-      const arr: any[] = [];
-      t2.split('\n').forEach((str: string, x: number) => {
-        if (str) {
-          let row: string[] = str.split('	').slice(0, 4);
-          if (!arr[Number(row[0])]) {
-            arr[Number(row[0])] = [];
+    setTimeout(() => {
+      Promise.all([request('file/readFile', 'tmp/chart-info.json'),
+      request('file/readFile', 'tmp/chart-data.txt')]).then(([t1, t2]) => {
+        setInfo(JSON.parse(t1));
+        const arr: any[] = [];
+        t2.split('\n').forEach((str: string, x: number) => {
+          if (str) {
+            const strs = str.split('	');
+            strs.slice(3).forEach((r, i) => {
+              const v = Number(r);
+              if (!arr[i]) {
+                arr[i] = [];
+              }
+              if (!arr[i][v]) {
+                arr[i][v] = [];
+              }
+              arr[i][v].push([Number(strs[0]), Number(strs[1]), Number(strs[2])]);
+            });
           }
-          arr[Number(row[0])].push([Number(row[1]), Number(row[2]), Number(row[3])]);
-        }
+        });
+        setLoading(false);
+        setList(arr.map(item => item.filter((subItem: any) => subItem)));
+      }).catch((err: string | Error) => {
+        console.log(err);
+        message.error(err);
+        setLoading(false);
       });
-      setLoading(false);
-      setList(arr);
-    }).catch((err: string | Error) => {
-      message.error(err);
-      setLoading(false);
-    });
+    }, 1000);
   };
   const sendCommand = () => {
     if (config.cmd2) {
@@ -62,11 +71,11 @@ const DataChart: FC<Props> = ({
   }
   const addChartData = (i: number) => {
     if (!chartRef.current) {
-      setLoading(false);
+      message.destroy();
       return;
     }
     if (i > 0 && !list[i]) {
-      setLoading(false);
+      message.destroy();
       return;
     }
     if (i === 0) {
@@ -75,16 +84,19 @@ const DataChart: FC<Props> = ({
       }, {
         replaceMerge: "series"
       });
+      message.destroy();
+      message.loading('开始计算', 0);
       setTimeout(() => {
         addChartData(i + 1);
-      }, 1000);
+      }, 2000);
       return;
     }
-    const series = chartRef.current.getOption().series;
-    series.push({
+    message.destroy();
+    message.loading(`计算中${(Math.round((i + 1) / list.length * 100) )}%`, 0);
+    const series = list[i].map((v) => ({
       type: 'scatter3D',
       dimensions: ['x', 'y', 'z'],
-      data: list[i],
+      data: v,
       symbolSize: 12,
       itemStyle: {
         borderWidth: 1,
@@ -95,13 +107,13 @@ const DataChart: FC<Props> = ({
           color: '#fff'
         }
       }
-    });
+    }));
     chartRef.current.setOption({
       series
     });
     setTimeout(() => {
       addChartData(i + 1);
-    }, 1000);
+    }, 2000);
   };
   useEffect(refreshData, [1]);
   useEffect(() => {
@@ -140,7 +152,6 @@ const DataChart: FC<Props> = ({
       chartRef.current.setOption(option);
     }
     if (list.length > 0) {
-      setLoading(true);
       addChartData(0);
     }
   }, [list, ref.current]);
